@@ -21,18 +21,28 @@
     (java.net InetAddress)))
  
  ;; Listener
- (deflistener rfid [{:type 'caudal.io.rfid-server
-                     :parameters {:controler-name "controladorai-01"
-                                  :controler "10.180.10.132"
-                                  :RfMode 1002
-                                  :cleanup-delta 1000
-                                  :chan-buf-size 10
-                                  :fastId false
-                                  :d-id-re "E2004.*"
-                                  :antennas [1 2]}}])
- 
- (defn print-it [{:keys [AntennaPortNumber PeakRssiInDbm d-id event] :as e}]
-   (log/info (format "%-5s %-10s %-20s %s" AntennaPortNumber PeakRssiInDbm event d-id)))
+ (deflistener rfid-salida [{:type 'caudal.io.rfid-server
+                            :parameters {:controler-name "salida"
+                                         :controler "10.180.10.132"
+                                         :RfMode 1002
+                                         :cleanup-delta 1000
+                                         :chan-buf-size 10
+                                         :fastId false
+                                         :d-id-re "E2004.*"
+                                         :antennas [1 2]}}])
+
+ (deflistener rfid-entrada [{:type 'caudal.io.rfid-server
+                             :parameters {:controler-name "entrada"
+                                          :controler "10.180.10.131"
+                                          :RfMode 1002
+                                          :cleanup-delta 1000
+                                          :chan-buf-size 10
+                                          :fastId false
+                                          :d-id-re "E2004.*"
+                                          :antennas [1 2]}}])
+
+ (defn print-it [{:keys [controler-name AntennaPortNumber PeakRssiInDbm d-id event] :as e}]
+   (log/info (format "%-10s %-5s %-10s %-20s %s" AntennaPortNumber PeakRssiInDbm event d-id)))
  
  (defsink example 1 ;; backpressure
    ;; streamer
@@ -42,7 +52,7 @@
     #_(->INFO [:all])))
  
  ;; Wires our listener with the streamers
- (wire [rfid] [example])
+ (wire [rfid-entrada rfid-salida] [example])
  
  ;(config-view [example] {:doughnut {:state-counter {:value-fn :n :tooltip [:n]}}})
  
