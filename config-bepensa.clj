@@ -42,7 +42,7 @@
                                           :antennas [1 2]}}])
 
  (defn print-it [{:keys [controler-name AntennaPortNumber PeakRssiInDbm d-id event] :as e}]
-   (log/info (format "%-10s %-5s %-10s %-20s %s" AntennaPortNumber PeakRssiInDbm event d-id)))
+   (log/info (format "%-10s %-5s %-10s %-20s %s" controler-name AntennaPortNumber PeakRssiInDbm event d-id)))
  
  (defsink example 1 ;; backpressure
    ;; streamer
