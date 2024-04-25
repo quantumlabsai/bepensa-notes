@@ -69,19 +69,15 @@
                   :origin origin}]
    (time-stampit
     [:entry-ts]
-    (reduce-with [:counter e-counter])
-    (by 
-     [:controller-name]
-     (by 
-      [:AntennaPortNumber]
-      (smap [#(log/info (pr-str %))])
-      (reduce-with
-       [:tag-reducer tag-reducer]
-       (where 
-        [:send-tag]
-        (smap 
-         [SE/send-events]
-         (smap [print-it])))))))))
+    ;(reduce-with [:counter e-counter])
+    (smap [#(log/info (pr-str %))])
+    (reduce-with
+     [:tag-reducer tag-reducer]
+     (where 
+      [:send-tag]
+      (smap 
+       [SE/send-events]
+       (smap [print-it])))))))
 
  ;; Listener
 (deflistener rfid-salida [{:type 'caudal.io.rfid-server
