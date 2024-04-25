@@ -119,14 +119,14 @@
 
 (def poster (create-poster POST-PLATFORM-BUFF-SIZE))
 
-(defn send-events [{:keys [controler-name AntennaPortNumber PeakRssiInDbm d-id event entry-ts plantId origin] :as event}]
+(defn send-events [{:keys [controler-name AntennaPortNumber PeakRssiInDbm d-id event entry-ts plantId origin] :as evt}]
   (try
-    (log/info (pr-str [:send-event-1 event]))
-    (poster PLATFORM-URL event)
-    event
+    (log/info (pr-str [:send-event-1 evt]))
+    (poster PLATFORM-URL evt)
+    evt
   (catch Exception e
     (.printStackTrace e)
     (log/error e)
-    event)))
+    evt)))
 
 
