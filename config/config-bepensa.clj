@@ -58,7 +58,7 @@
 (defn tag-reducer [{:keys [last-d-id last-entry-ts]} {:keys [d-id event entry-ts] :as e}]
   (if (= event :ON_TAG_READ)
     (if (or (not= d-id last-d-id) (> entry-ts (+ last-entry-ts C/DELTA-REPEAT-TAG)))
-      (assoc e :last-d-id d-id :last-entry-ts entry-ts :send-tag true)
+      (assoc e :last-d-id d-id :last-entry-ts entry-ts :send-tag true :uuid (create-uuid))
       (assoc e :last-d-id d-id :last-entry-ts last-entry-ts))
     (assoc e :last-d-id last-d-id :last-entry-ts last-entry-ts)))
 
