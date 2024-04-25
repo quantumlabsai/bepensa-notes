@@ -63,6 +63,8 @@
       (log/error e)
       "ERROR-IN-CREATE-TOKEN-1")))
 
+(log/info "CREANDO TOKEN !!! >>> " (calc-new-token PLATFORM-URL))
+
 (defn get-a-token [{:keys [ts] :as token-info} platform-url]
   (let [now (System/currentTimeMillis)]
     (if (> (- now 3600000) ts)
