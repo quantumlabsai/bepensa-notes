@@ -121,6 +121,7 @@
 
 (defn send-events [{:keys [controler-name AntennaPortNumber PeakRssiInDbm d-id event entry-ts plantId origin] :as event}]
   (try
+    (log/info (pr-str [:send-event-1 event]))
     (poster PLATFORM-URL event)
     event
   (catch Exception e
