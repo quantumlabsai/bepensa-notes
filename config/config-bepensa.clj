@@ -74,6 +74,7 @@
      [:controller-name]
      (by 
       [:AntennaPortNumber]
+      (smap [#(log/info (pr-str %))])
       (reduce-with
        [:tag-reducer tag-reducer]
        (where 
