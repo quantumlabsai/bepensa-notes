@@ -96,6 +96,8 @@
 
 (defn post-it [platform-url {:keys [controler-name AntennaPortNumber PeakRssiInDbm d-id event rfid-ts uuid] :as evt} r-cnt err-chan]
   (try
+    (log/info "EL EVENTO PELON")
+    (log/info (pr-str evt))
     (let [system-event {:atTime rfid-ts :eventName event :value d-id :uuid uuid :lane (str controler-name AntennaPortNumber)}
           status (post-it! platform-url system-event)]
       (log/info (format "\t send-events http-status: %s %-10s %s %-25s %-20s %s %s"  status controler-name AntennaPortNumber d-id event uuid rfid-ts))
