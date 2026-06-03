@@ -8,7 +8,7 @@
     ;  {"username":"...","access_token":"........"}
 
     ; eventos /api/event POST atTime eventName value uuid lane 
-(def PLATFORM-URL "https://10.20.129.16")
+(def PLATFORM-URL "http://10.20.129.16")
 
 (def USERNAME "system")
 (def PASSWORD "nWcdñw8N12")

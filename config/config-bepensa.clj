@@ -62,48 +62,100 @@
       (assoc e :last-d-id d-id :last-entry-ts last-entry-ts))
     (assoc e :last-d-id last-d-id :last-entry-ts last-entry-ts)))
 
+(defn create-chanel-id [controler-name antena]
+  (cond (= controler-name "salida") (str controler-name antena)
+        (= controler-name "entrada1") "entrada1"
+        (= controler-name "entrada2") "entrada2"
+        :else (log/error "no puedo crear nombre con " controler-name antena)))
+
 (defsink example 1 ;; backpressure
-   ;; streamer
+  ;; streamer
   (smap
    [set-defaults {:plantId plantId
                   :origin origin}]
    (time-stampit
     [:entry-ts]
     ;(reduce-with [:counter e-counter])
-    (smap [#(log/info (pr-str [:antes-tag-reducer  %]))])
-    (reduce-with
-     [:tag-reducer tag-reducer]
-     (smap [#(log/info (pr-str [:tag-reducer %]))])
-     (where 
-      [:send-tag]
-      (smap 
-       [SE/send-events]
-       (smap [print-it])))))))
+    ;(smap [#(log/info (pr-str [:antes-tag-reducer  %]))])
+    (smap
+     [(fn [{:keys [controler-name AntennaPortNumber] :as e}]
+        (let [id (create-chanel-id controler-name AntennaPortNumber)]
+          (assoc e :channel-id id :lane id)))]
+     (by
+      [:channel-id]
+      (reduce-with
+       [:tag-reducer tag-reducer]
+     ;(smap [#(log/info (pr-str [:tag-reducer %]))])
+       (where
+        [:send-tag]
+        (smap
+         [SE/send-events]
+         (smap [print-it])))))))))
 
- ;; Listener
+
+; OJO debemos permitir algun tipo de manejo de las regex por planta mañana lo defino hoy es: (2026-06-03)
+;
+;
+
+(defn get-prefix []
+  (-> (slurp "C:/quantumlabs/cauda-rfid/config/rfid-tag.regex")
+      clojure.string/split-lines
+      first
+      clojure.string/trim))
+
+;; Listener
 (deflistener rfid-salida [{:type 'caudal.io.rfid-server
-                           :parameters {:controler-name "salida"
+                           :parameters {:controler-info {:name "salida"
+                                                         :plant 43}
                                         :controler "10.180.10.132"
+                                        :inactivity 900000
                                         :RfMode 1002
-                                        :cleanup-delta 1000
-                                        :chan-buf-size 10
+                                        :cleanup-delta 120000
+                                        :chan-buf-size 1
                                         :fastId false
-                                        :d-id-re "E2004.*"
-                                        :antennas [1 2]}}])
+                                        :d-id-re (get-prefix) ;"AABB.*"
+                                        :keepalive-ms 60000
+                                        :antennas [[1 24 -70] [2 24 -70]]
+                                        :tag-policy {:type :last
+                                                     :delta 3000
+                                                     :directrion :approaching}}}])
+; en antennas va por cada antena un vector con (id, tx power,rx sendibility) [id nil|true|real nil|true|int-dbm]
 
-(deflistener rfid-entrada [{:type 'caudal.io.rfid-server
-                            :parameters {:controler-name "entrada"
-                                         :controler "10.180.10.131"
-                                         :RfMode 1002
-                                         :cleanup-delta 1000
-                                         :chan-buf-size 10
-                                         :fastId false
-                                         :d-id-re "E2004.*"
-                                         :antennas [1 2]}}])
+(deflistener rfid-entrada1 [{:type 'caudal.io.rfid-server
+                             :parameters {:controler-info {:name "entrada1"
+                                                           :plant 43}
+                                          :controler "10.180.10.131"
+                                          :inactivity 900000
+                                          :RfMode 1002
+                                          :cleanup-delta 120000
+                                          :chan-buf-size 1
+                                          :fastId false
+                                          :d-id-re (get-prefix) ;"AABB.*"
+                                          :keepalive-ms 60000
+                                          :antennas [[1 28 -80] [2 28 -80]]
+                                          :tag-policy {:type :last
+                                                       :delta 3100}}}])
+
+(deflistener rfid-entrada2 [{:type 'caudal.io.rfid-server
+                             :parameters {:controler-info {:name "entrada2"
+                                                           :plant 43}
+                                          :controler "10.180.10.133"
+                                          :inactivity 900000
+                                          :RfMode 1002
+                                          :cleanup-delta 120000
+                                          :chan-buf-size 1
+                                          :fastId false
+                                          :d-id-re (get-prefix) ;"AABB.*"
+                                          :keepalive-ms 60000
+                                          :antennas [[1 28 -80] [2 28 -80]]
+                                          :tag-policy {:type :last
+                                                       :delta 3200}}}])
 
 
- ;; Wires our listener with the streamers
-(wire [rfid-entrada rfid-salida] [example])
+;;Wires our listener with the streamers
+(wire [rfid-entrada1 rfid-entrada2 rfid-salida] [example])
+#_(wire [rfid-entrada1 rfid-salida] [example])
+#_(wire [rfid-salida] [example])
 
  ;(config-view [example] {:doughnut {:state-counter {:value-fn :n :tooltip [:n]}}})
 

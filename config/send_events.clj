@@ -76,6 +76,7 @@
 
 (defn post-it! [platform-url evt]
   (try
+    (log/warn (pr-str [:send-event evt]))
     (let [http-params (cond->
                        {:pool http-pool
                         :body (generate-string evt)
@@ -86,7 +87,7 @@
                         :read-timeout HTTP-TIMEOUT
                         :throw-exceptions? false}
                         AUTHORIZATION (merge {:headers {"Authorization" (format AUTHORIZATION (get-token platform-url))}}))
-          {:keys [status]} @(http/post (str platform-url "/api/event") http-params)]
+          {:keys [status]} @(http/post (str platform-url "/api/event/43") http-params)]
       status)
     (catch Exception e
       (log/error e)
@@ -94,13 +95,26 @@
 
 (io/make-parents (io/file (str CAUDAL_DATA "/relevantes/tmp.txt")))
 
-(defn post-it [platform-url {:keys [controler-name AntennaPortNumber PeakRssiInDbm d-id event rfid-ts uuid] :as evt} r-cnt err-chan]
+(defn write-line [file-name event]
+  (let [file-name (if (>= (.indexOf file-name "%s") 0)
+                    (format file-name (.format (java.text.SimpleDateFormat. "yyyy-MM-dd") (System/currentTimeMillis)))
+                    file-name)]
+    (with-open [out (io/writer file-name :append true)]
+      (.write out (str event "\n"))
+      (log/trace event)))
+  event)
+
+(defn post-it [platform-url {:keys [lane controler-name AntennaPortNumber PeakRssiInDbm d-id event rfid-ts uuid] :as evt} r-cnt err-chan]
   (try
-    (log/info "EL EVENTO PELON")
-    (log/info (pr-str evt))
-    (let [system-event {:atTime rfid-ts :eventName event :value d-id :uuid uuid :lane (str controler-name AntennaPortNumber)}
-          status (post-it! platform-url system-event)]
-      (log/info (format "\t send-events http-status: %s %-10s %s %-25s %-20s %s %s"  status controler-name AntennaPortNumber d-id event uuid rfid-ts))
+    ;(log/info "EL EVENTO PELON")
+    ;(log/info (pr-str evt))
+    (let [system-event {:aiTime rfid-ts :eventName event :value d-id :uuid uuid :lane lane}
+          status (post-it! platform-url system-event)
+          line (format "\t EVENT send-events http-status: %s %-10s %s %-25s %-20s %s %s %s"  
+                       status controler-name AntennaPortNumber d-id event uuid rfid-ts PeakRssiInDbm)]
+      ;(log/info line)
+      ;(write-line "eventos.txt" line)
+      (log/info line)
       (log/info (format "send-events: %s %s %s " status PLATFORM-URL system-event)))
       ;(store-event (str CAUDAL_DATA "/relevantes/relevantes-%s.edn.txt") (assoc event :http-status status :retry r-cnt)))
   (catch Throwable e
@@ -121,7 +135,7 @@
 
 (defn send-events [{:keys [controler-name AntennaPortNumber PeakRssiInDbm d-id event entry-ts plantId origin] :as evt}]
   (try
-    (log/info (pr-str [:send-event-1 evt]))
+    ;(log/info (pr-str [:send-event-1 evt]))
     (poster PLATFORM-URL evt)
     evt
   (catch Exception e
