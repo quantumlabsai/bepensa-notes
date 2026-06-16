@@ -51,10 +51,10 @@
           (log/info (str "evts/s: " (/ n 10.0) " --> " info))
           {:n 1 :last now})))))
 
-(defn print-it [{:keys [controler-name AntennaPortNumber PeakRssiInDbm d-id event rfid-ts] :as e}]
-  (log/info (format "%-10s %-5s %-10s %-20s %s %s" controler-name AntennaPortNumber PeakRssiInDbm event d-id rfid-ts)))
+(defn print-it [{:keys [plant id AntennaPortNumber PeakRssiInDbm d-id event rfid-ts]}]
+  (log/info (format "%-5s %-10s %-5s %-10s %-20s %s %s" plant id AntennaPortNumber PeakRssiInDbm event d-id rfid-ts)))
 
-; EVENTE ES ON_TAG_READ | ON_TAG_REMOVED | ON_TAG_ERROR
+; EVENTE ES ON_TAG_READ | ON_TAG_REMOVED | ON_TAG_ERROR (por ahora solo mandamos ON_TAG_READ)
 (defn tag-reducer [{:keys [last-d-id last-entry-ts]} {:keys [d-id event entry-ts] :as e}]
   (if (= event :ON_TAG_READ)
     (if (or (not= d-id last-d-id) (> entry-ts (+ last-entry-ts C/DELTA-REPEAT-TAG)))
@@ -62,11 +62,13 @@
       (assoc e :last-d-id d-id :last-entry-ts last-entry-ts))
     (assoc e :last-d-id last-d-id :last-entry-ts last-entry-ts)))
 
-(defn create-chanel-id [controler-name antena]
-  (cond (= controler-name "salida") (str controler-name antena)
-        (= controler-name "entrada1") "entrada1"
-        (= controler-name "entrada2") "entrada2"
-        :else (log/error "no puedo crear nombre con " controler-name antena)))
+(defn create-chanel-id [plant id antena]
+  (condp  = plant 
+    43 (cond (= id "salida") (str id antena)
+             (= id "entrada1") "entrada1"
+             (= id "entrada2") "entrada2"
+             :else (log/error "no puedo crear nombre con " [:plant plant :id id :antennas antena]))
+    (log/error "no puedo crear nombre con " [:plant plant :id id :antennas antena])))
 
 (defsink example 1 ;; backpressure
   ;; streamer
@@ -78,9 +80,9 @@
     ;(reduce-with [:counter e-counter])
     ;(smap [#(log/info (pr-str [:antes-tag-reducer  %]))])
     (smap
-     [(fn [{:keys [controler-name AntennaPortNumber] :as e}]
-        (let [id (create-chanel-id controler-name AntennaPortNumber)]
-          (assoc e :channel-id id :lane id)))]
+     [(fn [{:keys [plant id AntennaPortNumber] :as e}]
+        (let [channel-id (create-chanel-id plant id AntennaPortNumber)]
+          (assoc e :channel-id channel-id :lane id)))]
      (by
       [:channel-id]
       (reduce-with
@@ -105,9 +107,13 @@
 
 ;; Listener
 (deflistener rfid-salida [{:type 'caudal.io.rfid-server
-                           :parameters {:controler-info {:name "salida"
-                                                         :plant 43}
-                                        :controler "10.180.10.132"
+                                         ;controler-info es un mapa que se va a hacer merge con el evento que el caudal crea de modo que esta info llega a sink en el evento
+                                         ; es decir el evento que regresa caudal en el rfid-server regresa (merge  <evento-rfid> controler-info) 
+                                         ; y el controler-info es el que definimos aqui, ojo el sistema automaticamente le aumenta :controler con el valor de controler
+                                         ; que será usado para identificar de forma unica al controler
+                           :parameters {:controler-info {:id "salida"
+                                                         :plant 43
+                                                         :controler "10.180.10.132"}
                                         :inactivity 900000
                                         :RfMode 1002
                                         :cleanup-delta 120000
@@ -122,9 +128,9 @@
 ; en antennas va por cada antena un vector con (id, tx power,rx sendibility) [id nil|true|real nil|true|int-dbm]
 
 (deflistener rfid-entrada1 [{:type 'caudal.io.rfid-server
-                             :parameters {:controler-info {:name "entrada1"
-                                                           :plant 43}
-                                          :controler "10.180.10.131"
+                             :parameters {:controler-info {:id "entrada1"
+                                                           :plant 43
+                                                           :controler "10.180.10.131"}
                                           :inactivity 900000
                                           :RfMode 1002
                                           :cleanup-delta 120000
@@ -137,9 +143,9 @@
                                                        :delta 3100}}}])
 
 (deflistener rfid-entrada2 [{:type 'caudal.io.rfid-server
-                             :parameters {:controler-info {:name "entrada2"
-                                                           :plant 43}
-                                          :controler "10.180.10.133"
+                             :parameters {:controler-info {:id "entrada2"
+                                                           :plant 43
+                                                           :controler "10.180.10.133"}
                                           :inactivity 900000
                                           :RfMode 1002
                                           :cleanup-delta 120000

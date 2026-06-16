@@ -74,7 +74,7 @@
 (defn get-token [platform-url] 
   (:token (swap! token-atom get-a-token platform-url)))
 
-(defn post-it! [platform-url evt]
+(defn post-it! [platform-url plant evt]
   (try
     (log/warn (pr-str [:send-event evt]))
     (let [http-params (cond->
@@ -87,7 +87,7 @@
                         :read-timeout HTTP-TIMEOUT
                         :throw-exceptions? false}
                         AUTHORIZATION (merge {:headers {"Authorization" (format AUTHORIZATION (get-token platform-url))}}))
-          {:keys [status]} @(http/post (str platform-url "/api/event/43") http-params)]
+          {:keys [status]} @(http/post (str platform-url "/api/event/" plant) http-params)]
       status)
     (catch Exception e
       (log/error e)
@@ -100,20 +100,17 @@
                     (format file-name (.format (java.text.SimpleDateFormat. "yyyy-MM-dd") (System/currentTimeMillis)))
                     file-name)]
     (with-open [out (io/writer file-name :append true)]
-      (.write out (str event "\n"))
-      (log/trace event)))
+      (.write out (str event "\n"))))
   event)
 
-(defn post-it [platform-url {:keys [lane controler-name AntennaPortNumber PeakRssiInDbm d-id event rfid-ts uuid] :as evt} r-cnt err-chan]
+(defn post-it [platform-url {:keys [lane plant id AntennaPortNumber PeakRssiInDbm d-id event rfid-ts uuid] :as evt} r-cnt err-chan]
   (try
     ;(log/info "EL EVENTO PELON")
     ;(log/info (pr-str evt))
     (let [system-event {:aiTime rfid-ts :eventName event :value d-id :uuid uuid :lane lane}
-          status (post-it! platform-url system-event)
-          line (format "\t EVENT send-events http-status: %s %-10s %s %-25s %-20s %s %s %s"  
-                       status controler-name AntennaPortNumber d-id event uuid rfid-ts PeakRssiInDbm)]
-      ;(log/info line)
-      ;(write-line "eventos.txt" line)
+          status (post-it! platform-url plant system-event)
+          line (format "\t EVENT send-events http-status: %s %-5s %-10s %s %-25s %-20s %s %s %s"  
+                       status plant id AntennaPortNumber d-id event uuid rfid-ts PeakRssiInDbm)]
       (log/info line)
       (log/info (format "send-events: %s %s %s " status PLATFORM-URL system-event)))
       ;(store-event (str CAUDAL_DATA "/relevantes/relevantes-%s.edn.txt") (assoc event :http-status status :retry r-cnt)))
@@ -133,14 +130,14 @@
 
 (def poster (create-poster POST-PLATFORM-BUFF-SIZE))
 
-(defn send-events [{:keys [controler-name AntennaPortNumber PeakRssiInDbm d-id event entry-ts plantId origin] :as evt}]
+(defn send-events [evt]
   (try
     ;(log/info (pr-str [:send-event-1 evt]))
     (poster PLATFORM-URL evt)
     evt
-  (catch Exception e
-    (.printStackTrace e)
-    (log/error e)
-    evt)))
+    (catch Exception e
+      (.printStackTrace e)
+      (log/error e)
+      evt)))
 
 
