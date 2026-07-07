@@ -1,0 +1,9 @@
+* text=auto
+
+*.sh text eol=lf
+*.clj text eol=lf
+*.xml text eol=lf
+*.txt text eol=lf
+
+*.bat text eol=crlf
+*.cmd text eol=crlf

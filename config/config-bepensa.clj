@@ -68,6 +68,7 @@
              (= id "entrada1") "entrada1"
              (= id "entrada2") "entrada2"
              :else (log/error "no puedo crear nombre con " [:plant plant :id id :antennas antena]))
+    49 id
     (log/error "no puedo crear nombre con " [:plant plant :id id :antennas antena])))
 
 (defsink example 1 ;; backpressure
@@ -100,7 +101,7 @@
 ;
 
 (defn get-prefix []
-  (-> (slurp "C:/quantumlabs/cauda-rfid/config/rfid-tag.regex")
+  (-> (slurp "C:/quantumlabs/caudal/bepensa-notes/config/rfid-tag.regex") ;"C:/quantumlabs/cauda-rfid/config/rfid-tag.regex")
       clojure.string/split-lines
       first
       clojure.string/trim))
@@ -111,9 +112,9 @@
                                          ; es decir el evento que regresa caudal en el rfid-server regresa (merge  <evento-rfid> controler-info) 
                                          ; y el controler-info es el que definimos aqui, ojo el sistema automaticamente le aumenta :controler con el valor de controler
                                          ; que será usado para identificar de forma unica al controler
-                           :parameters {:controler-info {:id "salida"
-                                                         :plant 43
-                                                         :controler "10.180.10.132"}
+                           :parameters {:controler-info {:id "salida1"
+                                                         :plant 49
+                                                         :controler "10.180.14.19"}
                                         :inactivity 900000
                                         :RfMode 1002
                                         :cleanup-delta 120000
@@ -121,16 +122,16 @@
                                         :fastId false
                                         :d-id-re (get-prefix) ;"AABB.*"
                                         :keepalive-ms 60000
-                                        :antennas [[1 24 -70] [2 24 -70]]
+                                        :antennas [[1 24 -70]] ; [2 24 -70]]
                                         :tag-policy {:type :last
                                                      :delta 3000
                                                      :directrion :approaching}}}])
 ; en antennas va por cada antena un vector con (id, tx power,rx sendibility) [id nil|true|real nil|true|int-dbm]
 
 (deflistener rfid-entrada1 [{:type 'caudal.io.rfid-server
-                             :parameters {:controler-info {:id "entrada1"
-                                                           :plant 43
-                                                           :controler "10.180.10.131"}
+                             :parameters {:controler-info {:id "salida2"
+                                                           :plant 49
+                                                           :controler "10.180.14.20"}
                                           :inactivity 900000
                                           :RfMode 1002
                                           :cleanup-delta 120000
@@ -138,14 +139,14 @@
                                           :fastId false
                                           :d-id-re (get-prefix) ;"AABB.*"
                                           :keepalive-ms 60000
-                                          :antennas [[1 28 -80] [2 28 -80]]
+                                          :antennas [[1 28 -80]] ; [2 28 -80]]
                                           :tag-policy {:type :last
                                                        :delta 3100}}}])
 
 (deflistener rfid-entrada2 [{:type 'caudal.io.rfid-server
-                             :parameters {:controler-info {:id "entrada2"
-                                                           :plant 43
-                                                           :controler "10.180.10.133"}
+                             :parameters {:controler-info {:id "entrada1"
+                                                           :plant 49
+                                                           :controler "10.180.14.21"}
                                           :inactivity 900000
                                           :RfMode 1002
                                           :cleanup-delta 120000
@@ -153,7 +154,7 @@
                                           :fastId false
                                           :d-id-re (get-prefix) ;"AABB.*"
                                           :keepalive-ms 60000
-                                          :antennas [[1 28 -80] [2 28 -80]]
+                                          :antennas [[1 28 -80]] ; [2 28 -80]]
                                           :tag-policy {:type :last
                                                        :delta 3200}}}])
 
