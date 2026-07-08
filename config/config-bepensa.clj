@@ -124,7 +124,7 @@
                                         :keepalive-ms 60000
                                         :antennas [[1 24 -70]] ; [2 24 -70]]
                                         :tag-policy {:type :every
-                                                     :modul 100
+                                                     :modul 10
                                                      :wait4 10000
                                                      :trigger 10}}}])
 ; en antennas va por cada antena un vector con (id, tx power,rx sendibility) [id nil|true|real nil|true|int-dbm]
@@ -142,7 +142,7 @@
                                           :keepalive-ms 60000
                                           :antennas [[1 28 -80]] ; [2 28 -80]]
                                           :tag-policy {:type :every
-                                                       :modul 100
+                                                       :modul 10
                                                        :wait4 10000
                                                        :trigger 10}}}])
 
@@ -159,7 +159,7 @@
                                           :keepalive-ms 60000
                                           :antennas [[1 28 -80]] ; [2 28 -80]]
                                           :tag-policy {:type :every
-                                                       :modul 100
+                                                       :modul 10
                                                        :wait4 10000
                                                        :trigger 10}}}])
 

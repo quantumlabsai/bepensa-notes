@@ -2,7 +2,7 @@
 
 (def HTTP-TIMEOUT 5000)
 
-(def DELTA-REPEAT-TAG 5000)
+(def DELTA-REPEAT-TAG 50) ; más bien se limita el envio con el :every de politica
 
 (def CAUDAL_HOME (System/getenv "CAUDAL_HOME"))
 
