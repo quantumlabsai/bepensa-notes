@@ -126,7 +126,7 @@
                                         :tag-policy {:type :every
                                                      :modul 10
                                                      :wait4 10000
-                                                     :trigger 10}}}])
+                                                     :trigger 3}}}])
 ; en antennas va por cada antena un vector con (id, tx power,rx sendibility) [id nil|true|real nil|true|int-dbm]
 
 (deflistener rfid-salida2 [{:type 'caudal.io.rfid-server
@@ -144,7 +144,7 @@
                                           :tag-policy {:type :every
                                                        :modul 10
                                                        :wait4 10000
-                                                       :trigger 10}}}])
+                                                       :trigger 3}}}])
 
 (deflistener rfid-entrada1 [{:type 'caudal.io.rfid-server
                              :parameters {:controler-info {:id "entrada1"
@@ -161,7 +161,7 @@
                                           :tag-policy {:type :every
                                                        :modul 10
                                                        :wait4 10000
-                                                       :trigger 10}}}])
+                                                       :trigger 3}}}])
 
 
 ;;Wires our listener with the streamers
