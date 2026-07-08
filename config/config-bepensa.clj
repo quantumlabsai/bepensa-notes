@@ -107,7 +107,7 @@
       clojure.string/trim))
 
 ;; Listener
-(deflistener rfid-salida [{:type 'caudal.io.rfid-server
+(deflistener rfid-salida1 [{:type 'caudal.io.rfid-server
                                          ;controler-info es un mapa que se va a hacer merge con el evento que el caudal crea de modo que esta info llega a sink en el evento
                                          ; es decir el evento que regresa caudal en el rfid-server regresa (merge  <evento-rfid> controler-info) 
                                          ; y el controler-info es el que definimos aqui, ojo el sistema automaticamente le aumenta :controler con el valor de controler
@@ -123,12 +123,13 @@
                                         :d-id-re (get-prefix) ;"AABB.*"
                                         :keepalive-ms 60000
                                         :antennas [[1 24 -70]] ; [2 24 -70]]
-                                        :tag-policy {:type :last
-                                                     :delta 3000
-                                                     :directrion :approaching}}}])
+                                        :tag-policy {:type :every
+                                                     :modul 100
+                                                     :timeout 10000
+                                                     :trigger 10}}}])
 ; en antennas va por cada antena un vector con (id, tx power,rx sendibility) [id nil|true|real nil|true|int-dbm]
 
-(deflistener rfid-entrada1 [{:type 'caudal.io.rfid-server
+(deflistener rfid-salida2 [{:type 'caudal.io.rfid-server
                              :parameters {:controler-info {:id "salida2"
                                                            :plant 49
                                                            :controler "10.180.14.20"}
@@ -140,10 +141,12 @@
                                           :d-id-re (get-prefix) ;"AABB.*"
                                           :keepalive-ms 60000
                                           :antennas [[1 28 -80]] ; [2 28 -80]]
-                                          :tag-policy {:type :last
-                                                       :delta 3100}}}])
+                                          :tag-policy {:type :every
+                                                       :modul 100
+                                                       :timeout 10000
+                                                       :trigger 10}}}])
 
-(deflistener rfid-entrada2 [{:type 'caudal.io.rfid-server
+(deflistener rfid-entrada1 [{:type 'caudal.io.rfid-server
                              :parameters {:controler-info {:id "entrada1"
                                                            :plant 49
                                                            :controler "10.180.14.21"}
@@ -155,12 +158,14 @@
                                           :d-id-re (get-prefix) ;"AABB.*"
                                           :keepalive-ms 60000
                                           :antennas [[1 28 -80]] ; [2 28 -80]]
-                                          :tag-policy {:type :last
-                                                       :delta 3200}}}])
+                                          :tag-policy {:type :every
+                                                       :modul 100
+                                                       :timeout 10000
+                                                       :trigger 10}}}])
 
 
 ;;Wires our listener with the streamers
-(wire [rfid-entrada1 rfid-entrada2 rfid-salida] [example])
+(wire [rfid-entrada1 rfid-salida1 rfid-salida2] [example])
 #_(wire [rfid-entrada1 rfid-salida] [example])
 #_(wire [rfid-salida] [example])
 
