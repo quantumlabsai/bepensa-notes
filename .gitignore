@@ -1,1 +1,5 @@
 .clj-kondo/
+.lein-repl-history
+.lsp/
+maven-libs.zip
+target/
