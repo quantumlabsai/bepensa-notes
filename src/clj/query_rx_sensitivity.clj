@@ -1,7 +1,10 @@
 (ns query-rx-sensitivity
   (:gen-class)
-  (:import
-   [com.impinj.octane OctaneSdk Reader FeatureSet]))
+  (:import (com.impinj.octane ImpinjReader
+                              TagReportListener
+                              KeepaliveListener
+                              ConnectionLostListener
+                              GpoMode)))
 
 (defn -main [& args]
   (when (empty? args)
