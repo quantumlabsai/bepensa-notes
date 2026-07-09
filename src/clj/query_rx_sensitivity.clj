@@ -12,7 +12,7 @@
     (System/exit 1))
 
   (let [ip (first args)
-        reader (Reader.)]
+        reader (ImpinjReader.)]
 
     (try
       (.connect reader ip)
