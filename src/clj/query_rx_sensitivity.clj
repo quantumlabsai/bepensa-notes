@@ -25,7 +25,7 @@
         (println "Rx Sensitivity soportados:")
 
         (doseq [v values]
-          (println " " v "dBm")))
+          (println " " (.Dbm v) "dBm")))
 
       (.disconnect reader)
 
