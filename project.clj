@@ -96,7 +96,7 @@
                    ;;[javax.jms/jms "1.1"]       ; instalado con:  (OJO con la linea anterior ya no fue necesario por ahora jejeje no lo he probado)
 ; mvn imstall:install-file -Dfile=/Users/felipedejesusgerard/Projects/Clojure/caudal/extra-lib/javax.jms-1.1.jar -DgroupId=javax.jms -DartifactId=jms -Dversion=1.1 -Dpackaging=jar -DgeneratePom=true 
 
-                   ;[org.jdom/jdom "1.1.1"]     ; instalado con: (OJO ya no lo puse y funciono a ver con el tiempo...)
+                   [org.jdom/jdom "1.1.1"]     ; instalado con: (OJO ya no lo puse y funciono a ver con el tiempo...)
 ; mvn install:install-file -Dfile=/Users/felipedejesusgerard/Projects/Clojure/caudal/extra-lib/jdom.jar -DgroupId=org.jdom -DartifactId=jdom -Dversion=1.1.1 -Dpackaging=jar -DgeneratePom=true 
 
                    [xerces/xercesImpl "2.9.0"] ; Baja de maven central
