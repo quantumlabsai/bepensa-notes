@@ -140,7 +140,7 @@
                                           :fastId false
                                           :d-id-re (get-prefix) ;"AABB.*"
                                           :keepalive-ms 60000
-                                          :antennas [[1 29 -69]] ; [2 28 -80]]
+                                          :antennas [[1 29 -70]] ; [2 28 -80]]
                                           :tag-policy {:type :every
                                                        :modul 10
                                                        :wait4 10000
