@@ -122,7 +122,7 @@
                                         :fastId false
                                         :d-id-re (get-prefix) ;"AABB.*"
                                         :keepalive-ms 60000
-                                        :antennas [[1 29 -69]] ; [2 24 -70]]
+                                        :antennas [[1 29 -70]] ; [2 24 -70]]
                                         :tag-policy {:type :every
                                                      :modul 10
                                                      :wait4 10000
@@ -140,11 +140,7 @@
                                           :fastId false
                                           :d-id-re (get-prefix) ;"AABB.*"
                                           :keepalive-ms 60000
-<<<<<<< Updated upstream
                                           :antennas [[1 29 -70]] ; [2 28 -80]]
-=======
-                                          :antennas [[1 30 -80]] ; [2 28 -80]]
->>>>>>> Stashed changes
                                           :tag-policy {:type :every
                                                        :modul 10
                                                        :wait4 10000
