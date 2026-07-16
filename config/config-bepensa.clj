@@ -101,7 +101,7 @@
 ;
 
 (defn get-prefix []
-  (-> (slurp "C:/quantumlabs/caudal/bepensa-notes/config/rfid-tag.regex") ;"C:/quantumlabs/cauda-rfid/config/rfid-tag.regex")
+  (-> (slurp "C:/quantumlabs/bepensa-notes/config/rfid-tag.regex") ;"C:/quantumlabs/cauda-rfid/config/rfid-tag.regex")
       clojure.string/split-lines
       first
       clojure.string/trim))
