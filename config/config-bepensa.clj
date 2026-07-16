@@ -109,7 +109,7 @@
 (deflistener rfid-salida12-pacaptun [{:type 'caudal.io.rfid-server
                                       :parameters {:controler-info {:id "salida"
                                                                     :plant 43
-                                                                    controler "10.180.10.132"}
+                                                                    :controler "10.180.10.132"}
                                                    :inactivity 900000
                                                    :RfMode 1002
                                                    :cleanup-delta 120000
