@@ -106,7 +106,7 @@
       first
       clojure.string/trim))
 
-(deflistener rfid-salida12-pacaptun [{:type 'caudal.io.rfid-server
+(deflistener rfid-salida12-pacabtun [{:type 'caudal.io.rfid-server
                                       :parameters {:controler-info {:id "salida"
                                                                     :plant 43
                                                                     :controler "10.180.10.132"}
