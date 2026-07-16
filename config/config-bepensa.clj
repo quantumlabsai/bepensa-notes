@@ -82,7 +82,7 @@
     (smap
      [(fn [{:keys [plant id AntennaPortNumber] :as e}]
         (let [channel-id (create-chanel-id plant id AntennaPortNumber)]
-          (assoc e :channel-id channel-id :lane id :plantId plant)))]
+          (assoc e :channel-id channel-id :lane channel-id :plantId plant)))]
      (by [:plant]
          (by
           [:channel-id]
