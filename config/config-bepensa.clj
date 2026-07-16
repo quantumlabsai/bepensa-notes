@@ -74,8 +74,7 @@
 (defsink example 1 ;; backpressure
   ;; streamer
   (smap
-   [set-defaults {:plantId plantId
-                  :origin origin}]
+   [set-defaults {:origin origin}]
    (time-stampit
     [:entry-ts]
     ;(reduce-with [:counter e-counter])
@@ -83,17 +82,18 @@
     (smap
      [(fn [{:keys [plant id AntennaPortNumber] :as e}]
         (let [channel-id (create-chanel-id plant id AntennaPortNumber)]
-          (assoc e :channel-id channel-id :lane id)))]
-     (by
-      [:channel-id]
-      (reduce-with
-       [:tag-reducer tag-reducer]
+          (assoc e :channel-id channel-id :lane id :plantId plant)))]
+     (by [:plant]
+         (by
+          [:channel-id]
+          (reduce-with
+           [:tag-reducer tag-reducer]
      ;(smap [#(log/info (pr-str [:tag-reducer %]))])
-       (where
-        [:send-tag]
-        (smap
-         [SE/send-events]
-         (smap [print-it])))))))))
+           (where
+            [:send-tag]
+            (smap
+             [SE/send-events]
+             (smap [print-it]))))))))))
 
 
 ; OJO debemos permitir algun tipo de manejo de las regex por planta mañana lo defino hoy es: (2026-06-03)
@@ -106,8 +106,55 @@
       first
       clojure.string/trim))
 
+(deflistener rfid-salida12-pacaptun [{:type 'caudal.io.rfid-server
+                                      :parameters {:controler-info {:id "salida"
+                                                                    :plant 43
+                                                                    controler "10.180.10.132"}
+                                                   :inactivity 900000
+                                                   :RfMode 1002
+                                                   :cleanup-delta 120000
+                                                   :chan-buf-size 1
+                                                   :fastId false
+                                                   :d-id-re (get-prefix) ;"AABB.*"
+                                                   :keepalive-ms 60000
+                                                   :antennas [[1 24 -70] [2 24 -70]]
+                                                   :tag-policy {:type :last
+                                                                :delta 3000
+                                                                :directrion :approaching}}}])
+; en antennas va por cada antena un vector con (id, tx power,rx sendibility) [id nil|true|real nil|true|int-dbm]
+
+(deflistener rfid-entrada1-pacabtun [{:type 'caudal.io.rfid-server
+                             :parameters {:controler-info {:id "entrada1"
+                                                           :plant 43
+                                                           :controler "10.180.10.131"}
+                                          :inactivity 900000
+                                          :RfMode 1002
+                                          :cleanup-delta 120000
+                                          :chan-buf-size 1
+                                          :fastId false
+                                          :d-id-re (get-prefix) ;"AABB.*"
+                                          :keepalive-ms 60000
+                                          :antennas [[1 28 -80] [2 28 -80]]
+                                          :tag-policy {:type :last
+                                                       :delta 3100}}}])
+
+(deflistener rfid-entrada2-pacabtun [{:type 'caudal.io.rfid-server
+                             :parameters {:controler-info {:id "entrada2"
+                                                           :plant 43
+                                                           :controler "10.180.10.133"}
+                                          :inactivity 900000
+                                          :RfMode 1002
+                                          :cleanup-delta 120000
+                                          :chan-buf-size 1
+                                          :fastId false
+                                          :d-id-re (get-prefix) ;"AABB.*"
+                                          :keepalive-ms 60000
+                                          :antennas [[1 28 -80] [2 28 -80]]
+                                          :tag-policy {:type :last
+                                                       :delta 3200}}}])
+
 ;; Listener
-(deflistener rfid-salida1 [{:type 'caudal.io.rfid-server
+(deflistener rfid-salida1-cancun [{:type 'caudal.io.rfid-server
                                          ;controler-info es un mapa que se va a hacer merge con el evento que el caudal crea de modo que esta info llega a sink en el evento
                                          ; es decir el evento que regresa caudal en el rfid-server regresa (merge  <evento-rfid> controler-info) 
                                          ; y el controler-info es el que definimos aqui, ojo el sistema automaticamente le aumenta :controler con el valor de controler
@@ -129,7 +176,7 @@
                                                      :trigger 3}}}])
 ; en antennas va por cada antena un vector con (id, tx power,rx sendibility) [id nil|true|real nil|true|int-dbm]
 
-(deflistener rfid-salida2 [{:type 'caudal.io.rfid-server
+(deflistener rfid-salida2-cancun [{:type 'caudal.io.rfid-server
                              :parameters {:controler-info {:id "salida2"
                                                            :plant 49
                                                            :controler "10.180.14.20"}
@@ -146,7 +193,7 @@
                                                        :wait4 10000
                                                        :trigger 3}}}])
 
-(deflistener rfid-entrada1 [{:type 'caudal.io.rfid-server
+(deflistener rfid-entrada1-cancun [{:type 'caudal.io.rfid-server
                              :parameters {:controler-info {:id "entrada1"
                                                            :plant 49
                                                            :controler "10.180.14.21"}
@@ -165,11 +212,12 @@
 
 
 ;;Wires our listener with the streamers
-(wire [rfid-entrada1 rfid-salida1 rfid-salida2] [example])
+(wire [rfid-entrada1-cancun rfid-salida1-cancun rfid-salida2-cancun
+       rfid-entrada1-pacabtun rfid-entrada2-pacabtun rfid-salida12-pacabtun] [example])
 #_(wire [rfid-entrada1 rfid-salida] [example])
 #_(wire [rfid-salida] [example])
 
  ;(config-view [example] {:doughnut {:state-counter {:value-fn :n :tooltip [:n]}}})
 
-(web {:http-port 9910
+(web {:http-port 9911
       :publish-sinks [example]})
