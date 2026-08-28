@@ -93,7 +93,9 @@
             [:send-tag]
             (smap
              [SE/send-events]
-             (smap [print-it]))))))))))
+             (smap [print-it])))
+           (where [(fn [{:keys [event]}] (or (= event :ON_CONNECTION_LOST) (.exists (io/file "C:/quantumlabs/bepensa-notes/config/stop-server"))))]
+             (smap [(fn [e] (log/error (pr-str ["Connection lost" :-> e])) (System/exit 1))])))))))))
 
 
 ; OJO debemos permitir algun tipo de manejo de las regex por planta mañana lo defino hoy es: (2026-06-03)
