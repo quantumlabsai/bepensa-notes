@@ -89,15 +89,16 @@
           (reduce-with
            [:tag-reducer tag-reducer]
      ;(smap [#(log/info (pr-str [:tag-reducer %]))])
+           (->ERROR [:all])
            (where
             [:send-tag]
             (smap
              [SE/send-events]
              (smap [print-it])))
            (where [(fn [{:keys [event]}]
-                    (log/info (pr-str [:event event :exists? (.exists (io/file "C:/quantumlabs/bepensa-notes/config/stop-server"))])) 
+                     (log/info (pr-str [:event event :exists? (.exists (io/file "C:/quantumlabs/bepensa-notes/config/stop-server"))])) 
                      (or (= event :ON_CONNECTION_LOST) (.exists (io/file "C:/quantumlabs/bepensa-notes/config/stop-server"))))]
-             (smap [(fn [e] (log/error (pr-str ["Connection lost" :-> e])) (System/exit 1))])))))))))
+                  (smap [(fn [e] (log/error (pr-str ["Connection lost" :-> e])) (System/exit 1))])))))))))
 
 
 ; OJO debemos permitir algun tipo de manejo de las regex por planta mañana lo defino hoy es: (2026-06-03)
