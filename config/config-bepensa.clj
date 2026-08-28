@@ -94,7 +94,9 @@
             (smap
              [SE/send-events]
              (smap [print-it])))
-           (where [(fn [{:keys [event]}] (or (= event :ON_CONNECTION_LOST) (.exists (io/file "C:/quantumlabs/bepensa-notes/config/stop-server"))))]
+           (where [(fn [{:keys [event]}]
+                    (log/info (pr-str [:event event :exists? (.exists (io/file "C:/quantumlabs/bepensa-notes/config/stop-server"))])) 
+                     (or (= event :ON_CONNECTION_LOST) (.exists (io/file "C:/quantumlabs/bepensa-notes/config/stop-server"))))]
              (smap [(fn [e] (log/error (pr-str ["Connection lost" :-> e])) (System/exit 1))])))))))))
 
 
