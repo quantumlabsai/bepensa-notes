@@ -74,7 +74,9 @@
 (defsink example 1 ;; backpressure
   ;; streamer
   (smap
-   [set-defaults {:origin origin}]
+   [set-defaults {:origin origin
+                  :tg-token "7048569974:AAHuIbu0Qzm_AOznTXPzn6e3FrwQVobGrxY"
+                  :tg-chat-id "-4198377744"}]
    (time-stampit
     [:entry-ts]
     ;(reduce-with [:counter e-counter])
@@ -100,7 +102,9 @@
                      (or (= event :ON_CONNECTION_LOST) (.exists (io/file "C:/quantumlabs/bepensa-notes/config/stop-server"))))]
                   (smap [(fn [e] 
                            (log/error (pr-str ["Connection lost" :-> e])) 
-                           #_(System/exit 1))])))))))))
+                           #_(System/exit 1)
+                           (assoc e :msg (pr-str [:connection-lost :-> e])))]
+                        (send-text [:tg-token :tg-chat-id :msg]))))))))))
 
 
 ; OJO debemos permitir algun tipo de manejo de las regex por planta mañana lo defino hoy es: (2026-06-03)
