@@ -86,6 +86,7 @@
      (by [:plant]
          (by
           [:channel-id]
+          (smap [(fn [e] (log/error (pr-str [:e e :exists? (.exists (io/file "C:/quantumlabs/bepensa-notes/config/stop-server"))])))])
           (reduce-with
            [:tag-reducer tag-reducer]
      ;(smap [#(log/info (pr-str [:tag-reducer %]))])
