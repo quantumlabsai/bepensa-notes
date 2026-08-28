@@ -8,7 +8,7 @@
         
         <!-- ROLLING-FILE Appender -->
         <RollingFile name="RollingFile" fileName="logs/caudal-rfid.log"
-                      filePattern="C:\quantumlabs\cauda-rfid\logs\caudal-rfid-%d{yyy-MM-dd}.log">
+                      filePattern="C:\quantumlabs\bepensa-notes\logs\caudal-rfid-%d{yyy-MM-dd}.log">
             <PatternLayout>
                 <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
             </PatternLayout>
