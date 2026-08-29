@@ -75,8 +75,8 @@
   ;; streamer
   (smap
    [set-defaults {:origin origin
-                  :tg-token "7048569974:AAHuIbu0Qzm_AOznTXPzn6e3FrwQVobGrxY"
-                  :tg-chat-id "-4198377744"}]
+                  :tg-token ""
+                  :tg-chat-id ""}]
    (time-stampit
     [:entry-ts]
     ;(reduce-with [:counter e-counter])
