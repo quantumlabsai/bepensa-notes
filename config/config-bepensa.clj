@@ -108,7 +108,7 @@
                   (smap [(fn [e] 
                            (log/error (pr-str ["Connection lost" :-> e])) 
                            #_(System/exit 1)
-                           (assoc e :msg (pr-str [:connection-lost :-> e])))]
+                           (assoc e :msg (pr-str [:connection-lost :-> (dissoc e :tg-token :tg-chat-id)])))]
                         (send-text [:tg-token :tg-chat-id :msg]))))))))))
 
 
