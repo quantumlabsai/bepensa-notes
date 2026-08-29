@@ -74,6 +74,7 @@
 (defonce tg-token (slurp "C:/quantumlabs/bepensa-notes/config/tg-token.txt")) ;(System/getenv "TG-TOKEN")
 (defonce tg-chat-id (slurp "C:/quantumlabs/bepensa-notes/config/tg-chat-id.txt")) ; (System/getenv "TG-CHAT-ID")
 
+(log/info (pr-str {:tg-token tg-token :tg-chat-id tg-chat-id}))
 
 (defsink example 1 ;; backpressure
   ;; streamer
