@@ -3,6 +3,8 @@ setlocal
 
 REM Directorio base de la aplicación
 set APP_HOME=%~dp0
+set TG-TOKEN=xx
+set TG-CHAT-ID=yy
 
 C:\quantumlabs\java\openlogic-openjdk-8u402-b06-windows-64\bin\java ^
 -Xms1024m ^

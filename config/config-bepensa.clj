@@ -71,12 +71,16 @@
     49 id
     (log/error "no puedo crear nombre con " [:plant plant :id id :antennas antena])))
 
+(defonce tg-token (slurp "C:/quantumlabs/bepensa-notes/config/tg-token.txt")) ;(System/getenv "TG-TOKEN")
+(defonce tg-chat-id (slurp "C:/quantumlabs/bepensa-notes/config/tg-chat-id.txt")) ; (System/getenv "TG-CHAT-ID")
+
+
 (defsink example 1 ;; backpressure
   ;; streamer
   (smap
    [set-defaults {:origin origin
-                  :tg-token ""
-                  :tg-chat-id ""}]
+                  :tg-token tg-token
+                  :tg-chat-id tg-chat-id}]
    (time-stampit
     [:entry-ts]
     ;(reduce-with [:counter e-counter])
