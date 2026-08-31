@@ -79,9 +79,7 @@
 (defsink example 1 ;; backpressure
   ;; streamer
   (smap
-   [set-defaults {:origin origin
-                  :tg-token tg-token
-                  :tg-chat-id tg-chat-id}]
+   [set-defaults {:origin origin}]
    (time-stampit
     [:entry-ts]
     ;(reduce-with [:counter e-counter])
@@ -108,8 +106,8 @@
                   (smap [(fn [e] 
                            (log/error (pr-str ["Connection lost" :-> e])) 
                            #_(System/exit 1)
-                           (assoc e :msg (pr-str [:connection-lost :-> (dissoc e :tg-token :tg-chat-id)])))]
-                        (send-text [:tg-token :tg-chat-id :msg]))))))))))
+                           (assoc e :msg (pr-str [:connection-lost :-> e])))]
+                        (send-text [tg-token tg-chat-id :msg]))))))))))
 
 
 ; OJO debemos permitir algun tipo de manejo de las regex por planta mañana lo defino hoy es: (2026-06-03)
@@ -136,7 +134,7 @@
                                                    :antennas [[1 24 -70] [2 24 -70]]
                                                    :tag-policy {:type :last
                                                                 :delta 3000
-                                                                :directrion :approaching}}}])
+                                                                :direction :approaching}}}])
 ; en antennas va por cada antena un vector con (id, tx power,rx sendibility) [id nil|true|real nil|true|int-dbm]
 
 (deflistener rfid-entrada1-pacabtun [{:type 'caudal.io.rfid-server
