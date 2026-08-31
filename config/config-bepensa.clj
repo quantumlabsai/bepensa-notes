@@ -89,9 +89,16 @@
      [(fn [{:keys [plant id AntennaPortNumber] :as e}]
         (let [channel-id (create-chanel-id plant id AntennaPortNumber)]
           (assoc e :channel-id channel-id :lane channel-id :plantId plant)))]
-     (by [:plant]
-         (by
-          [:channel-id]
+     (counter
+      [:total :total]
+      (by
+       [:plant]
+       (counter
+        [:plant-total :plant-total]
+        (by
+         [:channel-id]
+         (counter
+          [:channel-total :channel-total]
           (reduce-with
            [:tag-reducer tag-reducer]
            (where
@@ -99,14 +106,16 @@
             (smap
              [SE/send-events]
              (smap [print-it])))
-           (where [(fn [{:keys [event]}]
-                     (log/info (pr-str [:event event :exists? (.exists debug-telegram-flg)]))
-                     (or (= event :ON_CONNECTION_LOST) (.exists debug-telegram-flg)))]
-                  (smap [(fn [e]
-                           (log/error (pr-str ["Connection lost" :-> e :debug-telegram-flg-deleted (.delete debug-telegram-flg)]))
-                           #_(System/exit 1)
-                           (assoc e :msg (pr-str [:connection-lost :-> e])))]
-                        (send-text [tg-token tg-chat-id :msg]))))))))))
+           (where
+            [(fn [{:keys [event]}]
+               (log/info (pr-str [:event event :exists? (.exists debug-telegram-flg)]))
+               (or (= event :ON_CONNECTION_LOST) (.exists debug-telegram-flg)))]
+            (smap
+             [(fn [e]
+                (log/error (pr-str ["Connection lost" :-> e :debug-telegram-flg-deleted (.delete debug-telegram-flg)]))
+                #_(System/exit 1)
+                (assoc e :msg (pr-str [:connection-lost :-> e])))]
+             (send-text [tg-token tg-chat-id :msg])))))))))))))
 
 
 ; OJO debemos permitir algun tipo de manejo de las regex por planta mañana lo defino hoy es: (2026-06-03)
