@@ -63,7 +63,7 @@
     (assoc e :last-d-id last-d-id :last-entry-ts last-entry-ts)))
 
 (defn create-chanel-id [plant id antena]
-  (condp  = plant 
+  (condp  = plant
     43 (cond (= id "salida") (str id antena)
              (= id "entrada1") "entrada1"
              (= id "entrada2") "entrada2"
@@ -73,6 +73,7 @@
 
 (defonce tg-token (slurp "C:/quantumlabs/bepensa-notes/config/tg-token.txt")) ;(System/getenv "TG-TOKEN")
 (defonce tg-chat-id (slurp "C:/quantumlabs/bepensa-notes/config/tg-chat-id.txt")) ; (System/getenv "TG-CHAT-ID")
+(defonce debug-telegram-flg (io/file "C:/quantumlabs/bepensa-notes/config/debug-telegram"))
 
 (log/info (pr-str {:tg-token tg-token :tg-chat-id tg-chat-id}))
 
@@ -101,10 +102,10 @@
              [SE/send-events]
              (smap [print-it])))
            (where [(fn [{:keys [event]}]
-                     (log/info (pr-str [:event event :exists? (.exists (io/file "C:/quantumlabs/bepensa-notes/config/stop-server"))])) 
-                     (or (= event :ON_CONNECTION_LOST) (.exists (io/file "C:/quantumlabs/bepensa-notes/config/stop-server"))))]
-                  (smap [(fn [e] 
-                           (log/error (pr-str ["Connection lost" :-> e])) 
+                     (log/info (pr-str [:event event :exists? (.exists debug-telegram-flg)]))
+                     (or (= event :ON_CONNECTION_LOST) (.exists debug-telegram-flg)))]
+                  (smap [(fn [e]
+                           (log/error (pr-str ["Connection lost" :-> e :debug-telegram-flg-deleted (.delete debug-telegram-flg)]))
                            #_(System/exit 1)
                            (assoc e :msg (pr-str [:connection-lost :-> e])))]
                         (send-text [tg-token tg-chat-id :msg]))))))))))
@@ -138,34 +139,34 @@
 ; en antennas va por cada antena un vector con (id, tx power,rx sendibility) [id nil|true|real nil|true|int-dbm]
 
 (deflistener rfid-entrada1-pacabtun [{:type 'caudal.io.rfid-server
-                             :parameters {:controler-info {:id "entrada1"
-                                                           :plant 43
-                                                           :controler "10.180.10.131"}
-                                          :inactivity 900000
-                                          :RfMode 1002
-                                          :cleanup-delta 120000
-                                          :chan-buf-size 1
-                                          :fastId false
-                                          :d-id-re (get-prefix) ;"AABB.*"
-                                          :keepalive-ms 60000
-                                          :antennas [[1 28 -80] [2 28 -80]]
-                                          :tag-policy {:type :last
-                                                       :delta 3100}}}])
+                                      :parameters {:controler-info {:id "entrada1"
+                                                                    :plant 43
+                                                                    :controler "10.180.10.131"}
+                                                   :inactivity 900000
+                                                   :RfMode 1002
+                                                   :cleanup-delta 120000
+                                                   :chan-buf-size 1
+                                                   :fastId false
+                                                   :d-id-re (get-prefix) ;"AABB.*"
+                                                   :keepalive-ms 60000
+                                                   :antennas [[1 28 -80] [2 28 -80]]
+                                                   :tag-policy {:type :last
+                                                                :delta 3100}}}])
 
 (deflistener rfid-entrada2-pacabtun [{:type 'caudal.io.rfid-server
-                             :parameters {:controler-info {:id "entrada2"
-                                                           :plant 43
-                                                           :controler "10.180.10.133"}
-                                          :inactivity 900000
-                                          :RfMode 1002
-                                          :cleanup-delta 120000
-                                          :chan-buf-size 1
-                                          :fastId false
-                                          :d-id-re (get-prefix) ;"AABB.*"
-                                          :keepalive-ms 60000
-                                          :antennas [[1 28 -80] [2 28 -80]]
-                                          :tag-policy {:type :last
-                                                       :delta 3200}}}])
+                                      :parameters {:controler-info {:id "entrada2"
+                                                                    :plant 43
+                                                                    :controler "10.180.10.133"}
+                                                   :inactivity 900000
+                                                   :RfMode 1002
+                                                   :cleanup-delta 120000
+                                                   :chan-buf-size 1
+                                                   :fastId false
+                                                   :d-id-re (get-prefix) ;"AABB.*"
+                                                   :keepalive-ms 60000
+                                                   :antennas [[1 28 -80] [2 28 -80]]
+                                                   :tag-policy {:type :last
+                                                                :delta 3200}}}])
 
 ;; Listener
 (deflistener rfid-salida1-cancun [{:type 'caudal.io.rfid-server
@@ -173,56 +174,56 @@
                                          ; es decir el evento que regresa caudal en el rfid-server regresa (merge  <evento-rfid> controler-info) 
                                          ; y el controler-info es el que definimos aqui, ojo el sistema automaticamente le aumenta :controler con el valor de controler
                                          ; que será usado para identificar de forma unica al controler
-                           :parameters {:controler-info {:id "salida1"
-                                                         :plant 49
-                                                         :controler "10.180.14.19"}
-                                        :inactivity 900000
-                                        :RfMode 1002
-                                        :cleanup-delta 120000
-                                        :chan-buf-size 1
-                                        :fastId false
-                                        :d-id-re (get-prefix) ;"AABB.*"
-                                        :keepalive-ms 60000
-                                        :antennas [[1 29 -70]] ; [2 24 -70]]
-                                        :tag-policy {:type :every
-                                                     :modul 10
-                                                     :wait4 10000
-                                                     :trigger 3}}}])
+                                   :parameters {:controler-info {:id "salida1"
+                                                                 :plant 49
+                                                                 :controler "10.180.14.19"}
+                                                :inactivity 900000
+                                                :RfMode 1002
+                                                :cleanup-delta 120000
+                                                :chan-buf-size 1
+                                                :fastId false
+                                                :d-id-re (get-prefix) ;"AABB.*"
+                                                :keepalive-ms 60000
+                                                :antennas [[1 29 -70]] ; [2 24 -70]]
+                                                :tag-policy {:type :every
+                                                             :modul 10
+                                                             :wait4 10000
+                                                             :trigger 3}}}])
 ; en antennas va por cada antena un vector con (id, tx power,rx sendibility) [id nil|true|real nil|true|int-dbm]
 
 (deflistener rfid-salida2-cancun [{:type 'caudal.io.rfid-server
-                             :parameters {:controler-info {:id "salida2"
-                                                           :plant 49
-                                                           :controler "10.180.14.20"}
-                                          :inactivity 900000
-                                          :RfMode 1002
-                                          :cleanup-delta 120000
-                                          :chan-buf-size 1
-                                          :fastId false
-                                          :d-id-re (get-prefix) ;"AABB.*"
-                                          :keepalive-ms 60000
-                                          :antennas [[1 29 -70]] ; [2 28 -80]]
-                                          :tag-policy {:type :every
-                                                       :modul 10
-                                                       :wait4 10000
-                                                       :trigger 3}}}])
+                                   :parameters {:controler-info {:id "salida2"
+                                                                 :plant 49
+                                                                 :controler "10.180.14.20"}
+                                                :inactivity 900000
+                                                :RfMode 1002
+                                                :cleanup-delta 120000
+                                                :chan-buf-size 1
+                                                :fastId false
+                                                :d-id-re (get-prefix) ;"AABB.*"
+                                                :keepalive-ms 60000
+                                                :antennas [[1 29 -70]] ; [2 28 -80]]
+                                                :tag-policy {:type :every
+                                                             :modul 10
+                                                             :wait4 10000
+                                                             :trigger 3}}}])
 
 (deflistener rfid-entrada1-cancun [{:type 'caudal.io.rfid-server
-                             :parameters {:controler-info {:id "entrada1"
-                                                           :plant 49
-                                                           :controler "10.180.14.21"}
-                                          :inactivity 900000
-                                          :RfMode 1002
-                                          :cleanup-delta 120000
-                                          :chan-buf-size 1
-                                          :fastId false
-                                          :d-id-re (get-prefix) ;"AABB.*"
-                                          :keepalive-ms 60000
-                                          :antennas [[1 30 -70]] ; [2 28 -80]]
-                                          :tag-policy {:type :every
-                                                       :modul 10
-                                                       :wait4 10000
-                                                       :trigger 3}}}])
+                                    :parameters {:controler-info {:id "entrada1"
+                                                                  :plant 49
+                                                                  :controler "10.180.14.21"}
+                                                 :inactivity 900000
+                                                 :RfMode 1002
+                                                 :cleanup-delta 120000
+                                                 :chan-buf-size 1
+                                                 :fastId false
+                                                 :d-id-re (get-prefix) ;"AABB.*"
+                                                 :keepalive-ms 60000
+                                                 :antennas [[1 30 -70]] ; [2 28 -80]]
+                                                 :tag-policy {:type :every
+                                                              :modul 10
+                                                              :wait4 10000
+                                                              :trigger 3}}}])
 
 
 ;;Wires our listener with the streamers
