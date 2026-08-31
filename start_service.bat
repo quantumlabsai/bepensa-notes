@@ -6,7 +6,7 @@ set APP_HOME=%~dp0
 set TG-TOKEN=xx
 set TG-CHAT-ID=yy
 
-C:\quantumlabs\java\openlogic-openjdk-8u402-b06-windows-64\bin\java ^
+C:\quantumlabs\java\jdk-21.0.12.1+1\bin\java ^
 -Xms1024m ^
 -Xmx1024m ^
 -Duser.timezone=America/Mexico_City ^
