@@ -35,15 +35,6 @@
         <!-- Logger name ="ai.quantumlabs.rfid-events" level="trace" additivity="false">
    	    <AppenderRef ref="RollingEventsFile"/>
         </Logger -->
-        <!-- protocolo LLRP interno (org.llrp.ltk) -- INFO log de cada mensaje
-             SET_READER_CONFIG/ROSPEC transmitido al lector; util para
-             depurar el handshake inicial. Descomentar para silenciarlo
-             (sube el nivel de este paquete a "warn" sin tocar el Root).
-        <Logger name="org.llrp" level="warn" additivity="false">
-            <AppenderRef ref="Console"/>
-            <AppenderRef ref="RollingFile"/>
-        </Logger>
-        -->
         <Root level="info" additivity="false">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="RollingFile"/>
