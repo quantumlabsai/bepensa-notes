@@ -77,14 +77,12 @@
 
 (log/info (pr-str {:tg-token tg-token :tg-chat-id tg-chat-id}))
 
-(defsink example 1 ;; backpressure
+(defsink flux 1 ;; backpressure
   ;; streamer
   (smap
    [set-defaults {:origin origin}]
    (time-stampit
     [:entry-ts]
-    ;(reduce-with [:counter e-counter])
-    ;(smap [#(log/info (pr-str [:antes-tag-reducer  %]))])
     (smap
      [(fn [{:keys [plant id AntennaPortNumber] :as e}]
         (let [channel-id (create-chanel-id plant id AntennaPortNumber)]
@@ -113,7 +111,6 @@
             (smap
              [(fn [e]
                 (log/error (pr-str ["Connection lost" :-> e :debug-telegram-flg-deleted (.delete debug-telegram-flg)]))
-                #_(System/exit 1)
                 (assoc e :msg (pr-str [:connection-lost :-> e])))]
              (send-text [tg-token tg-chat-id :msg])))))))))))))
 
@@ -233,13 +230,19 @@
                                                               :trigger 3}}}])
 
 
+;; Borra el estado de "example" (todos los contadores/tag-reducer/etc,
+;; queda solo el bookkeeping interno :caudal/...) todos los dias a las
+;; 6:00am -- ver caudal.streams.common/mutate! :clear-all.
+(deflistener state-reset [{:type 'caudal.core.scheduler-server
+                              :jobs [{:runit? true
+                                      :cron-def "0 0 6 * * ?"
+                                      :event-factory 'caudal.core.scheduler-server/state-admin-event-factory
+                                      :parameters {:cmd :clear-all}}]}])
+
 ;;Wires our listener with the streamers
 (wire [rfid-entrada1-cancun rfid-salida1-cancun rfid-salida2-cancun
-       rfid-entrada1-pacabtun rfid-entrada2-pacabtun rfid-salida12-pacabtun] [example])
-#_(wire [rfid-entrada1 rfid-salida] [example])
-#_(wire [rfid-salida] [example])
-
- ;(config-view [example] {:doughnut {:state-counter {:value-fn :n :tooltip [:n]}}})
+       rfid-entrada1-pacabtun rfid-entrada2-pacabtun rfid-salida12-pacabtun
+       state-reset] [flux])
 
 (web {:http-port 9911
-      :publish-sinks [example]})
+      :publish-sinks [flux]})
