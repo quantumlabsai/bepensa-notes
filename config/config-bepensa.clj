@@ -55,12 +55,29 @@
   (log/info (format "%-5s %-10s %-5s %-10s %-20s %s %s" plant id AntennaPortNumber PeakRssiInDbm event d-id rfid-ts)))
 
 ; EVENTE ES ON_TAG_READ | ON_TAG_REMOVED | ON_TAG_ERROR (por ahora solo mandamos ON_TAG_READ)
-(defn tag-reducer [{:keys [last-d-id last-entry-ts]} {:keys [d-id event entry-ts] :as e}]
-  (if (= event :ON_TAG_READ)
-    (if (or (not= d-id last-d-id) (> entry-ts (+ last-entry-ts C/DELTA-REPEAT-TAG)))
-      (assoc e :last-d-id d-id :last-entry-ts entry-ts :send-tag true :uuid (create-uuid))
-      (assoc e :last-d-id d-id :last-entry-ts last-entry-ts))
-    (assoc e :last-d-id last-d-id :last-entry-ts last-entry-ts)))
+; :seen es el set de d-id actualmente presentes (se agregan en ON_TAG_READ,
+; se quitan en ON_TAG_REMOVED, asi nunca crece indefinidamente) -- :increment
+; sale true solo la primera vez que un d-id aparece mientras sigue en :seen,
+; para poder contar distintos sin volver a contar el mismo tag que sigue
+; presente aunque :send-tag vuelva a true por la ventana de DELTA-REPEAT-TAG.
+(defn tag-reducer [{:keys [last-d-id last-entry-ts seen] :or {seen #{}}} {:keys [d-id event entry-ts] :as e}]
+  (cond
+    (and (= event :ON_TAG_READ)
+         (or (not= d-id last-d-id) (> entry-ts (+ last-entry-ts C/DELTA-REPEAT-TAG))))
+    (assoc e :last-d-id d-id :last-entry-ts entry-ts :send-tag true :uuid (create-uuid)
+           :seen (conj seen d-id) :increment (not (contains? seen d-id)))
+
+    (= event :ON_TAG_READ)
+    (assoc e :last-d-id d-id :last-entry-ts last-entry-ts
+           :seen (conj seen d-id) :increment false)
+
+    (= event :ON_TAG_REMOVED)
+    (assoc e :last-d-id last-d-id :last-entry-ts last-entry-ts
+           :seen (disj seen d-id) :increment false)
+
+    :else
+    (assoc e :last-d-id last-d-id :last-entry-ts last-entry-ts
+           :seen seen :increment false)))
 
 (defn create-chanel-id [plant id antena]
   (condp  = plant
@@ -112,7 +129,10 @@
              [(fn [e]
                 (log/error (pr-str ["Connection lost" :-> e :debug-telegram-flg-deleted (.delete debug-telegram-flg)]))
                 (assoc e :msg (pr-str [:connection-lost :-> e])))]
-             (send-text [tg-token tg-chat-id :msg])))))))))))))
+             (send-text [tg-token tg-chat-id :msg])))
+           (where
+            [:increment]
+            (counter [:distinct-tag-count :distinct-tag-count]))))))))))))
 
 
 ; OJO debemos permitir algun tipo de manejo de las regex por planta mañana lo defino hoy es: (2026-06-03)
@@ -230,7 +250,7 @@
                                                               :trigger 3}}}])
 
 
-;; Borra el estado de "example" (todos los contadores/tag-reducer/etc,
+;; Borra el estado de "flux" (todos los contadores/tag-reducer/etc,
 ;; queda solo el bookkeeping interno :caudal/...) todos los dias a las
 ;; 6:00am -- ver caudal.streams.common/mutate! :clear-all.
 (deflistener state-reset [{:type 'caudal.core.scheduler-server
